@@ -1,0 +1,11 @@
+
+services:
+    worker:
+        build: .
+        container_name: worker
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+        environment:
+            RABBITMQ_HOST: rabbitmq
+        restart: always

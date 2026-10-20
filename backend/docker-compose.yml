@@ -1,0 +1,15 @@
+
+services:
+    backend:
+        build: .
+        container_name: backend
+        ports:
+            - "8080:8080"
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            elastic_search_01:
+                condition: service_started
+        environment:
+            RABBITMQ_HOST: rabbitmq
+            ELASTICSEARCH_URL: http://elasticsearch_01:9200

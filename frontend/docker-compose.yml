@@ -1,0 +1,15 @@
+
+services:
+    frontend:
+        build: 
+            context: .
+            args:
+                - API_URL=http://localhost:8080
+        container_name: frontend
+        ports:
+            - "3000:3000"
+        depends_on:
+            - backend       
+        volumes:
+            - .:/app
+            - /app/node_modules     

@@ -1,0 +1,55 @@
+
+include:
+    - ./frontend/docker-compose.yml
+    - ./backend/docker-compose.yml
+    - ./worker/docker-compose.yml
+
+
+volumes:
+    es-data01: 
+    es-data02: 
+
+services:
+
+    rabbitmq:
+        image: rabbitmq:4.4.0-management
+        container_name: rabbitmq
+        restart: always
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    elastic_search_01:
+        image: elasticsearch:8.19.23
+        container_name: elastic_search_01
+        ports:
+            - "9200:9200"
+        volumes:
+            - es-data01:/usr/share/elasticsearch/data
+        environment:
+          - node.name=es01
+          - cluster.name=es-docker-cluster
+          - discovery.seed_hosts=elastic_search_02
+          - cluster.initial_master_nodes=es01,es02
+          - xpack.security.enabled=false
+          - ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+    elastic_search_02:
+        image: elasticsearch:8.19.23
+        container_name: elastic_search_02
+        volumes:
+            - es-data02:/usr/share/elasticsearch/data
+        environment:
+            - node.name=es02
+            - cluster.name=es-docker-cluster
+            - discovery.seed_hosts=elastic_search_01
+            - cluster.initial_master_nodes=es01,es02
+            - xpack.security.enabled=false
+            - ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+
